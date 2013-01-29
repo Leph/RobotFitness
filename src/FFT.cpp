@@ -91,12 +91,18 @@ vector<pair<double,double> > FFT(vector<double> & signal, unsigned int sample_ra
 }
 
 
-std::vector<std::pair<double,double> > windowedFFT(std::vector<double>& sensorValues,int indiceDebut,int indiceFin,int sample_rate,int methode){
-  std::vector<double>::const_iterator phaseStart = sensorValues.begin() +indiceDebut;
-  std::vector<double>::const_iterator phaseEnd = sensorValues.begin() + indiceFin;
-  std::vector<double> walkValues(phaseStart, phaseEnd);
-  return FFT(walkValues,sample_rate,methode);
+std::vector<std::pair<double,double> > windowedFFT(
+    const std::vector<double>& sensorValues, size_t startIndex, size_t endIndex,
+    int sample_rate, int sign) 
+{
+    std::vector<double> walkValues;
+    for (size_t i=startIndex;i<=endIndex;i++) {
+        walkValues.push_back(sensorValues[i]);
+    }
+
+    return FFT(walkValues, sample_rate, sign);
 }
+
 /*****************************************************************************/
 
 void test_fft() {

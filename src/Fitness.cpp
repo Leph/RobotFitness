@@ -70,34 +70,39 @@ std::vector< std::pair<size_t,size_t> > Fitness::findWalkPhases(SensorData& sens
 }
 
 
-void Fitness::computeFitness(SensorData& sensors, std::vector< std::pair<size_t,size_t> >& phases){
-  size_t i,j,k;
-  size_t nbSensor = sensors.getNbSensor();
-  size_t nbPhases = phases.size();
-  double realPart, imPart;
-  for(j=0;j<nbPhases;j++){
-    for(i=0;i<nbSensor;i++){
-      int indiceDebut = phases[j].first;
-      int indiceFin = phases[j].second;
-      std::string sensorName = sensors.getSensor(i);
-      std::vector<double>& sensorValues = sensors.getSensorValues(sensorName);
-      std::vector<std::pair<double,double> > result = windowedFFT(sensorValues,indiceDebut,indiceFin,SAMPLE_RATE,1);
-      std::vector<double> plot1;
-      std::vector<double> plot2;
-      for(k=0;k<result.size();k++){
-	realPart=result[k].first;
-	imPart=result[k].second;
-	plot1.push_back(sqrt(realPart*realPart+imPart*imPart));
-	plot2.push_back(atan2(imPart,realPart));
-      }
-      if(i==3){
-	Plot::add("amplitude ",plot1 );
-	Plot::plot();
-	Plot::add("phase ",plot2);
-	Plot::plot();
-      }
+void Fitness::computeFitness(SensorData& sensors, 
+    const std::vector< std::pair<size_t,size_t> >& phases)
+{
+    size_t nbSensor = sensors.getNbSensor();
+    size_t nbPhases = phases.size();
+    for(size_t j=0;j<nbPhases;j++) {
+        for(size_t i=0;i<nbSensor;i++) {
+            std::vector<double> phaseSignal;
+            std::string sensorName = sensors.getSensor(i);
+            std::vector<double>& sensorValues = sensors.getSensorValues(sensorName);
+            //Compute for each window
+            int indexStart = phases[j].first;
+            int indexEnd = phases[j].second;
+            for (size_t k=indexStart;k<indexEnd-FFT_WINDOW_LENGTH;k++) {
+                //Compute FFT
+                std::vector< std::pair<double,double> > result = windowedFFT(
+                    sensorValues, k, k+FFT_WINDOW_LENGTH, FTT_SAMPLE_RATE, 1);
+                //Compute freq and phase
+                phaseSignal.push_back(atan2(result[0].second, result[1].first));
+            }
+            /*
+            for(size_t k=0;k<result.size();k++) {
+                double realPart = result[k].first;
+                double imPart = result[k].second;
+                plot1.push_back(sqrt(realPart*realPart+imPart*imPart));
+                plot2.push_back(atan2(imPart,realPart));
+            }
+            */
+            if(i == 3 && j == 0) {
+                Plot::add("phase", phaseSignal);
+                Plot::plot();
+            }
+        }
     }
-  }
-
 }
 
