@@ -1,4 +1,4 @@
-#Acc_x;Acc_z;Elongation Droit;Elongation gauche;Gyro_x;Gyro_z;PressionPiedDArriereD;PressionPiedDArriereG;PressionPiedDAvantD;PressionPiedDAvantG;PressionPiedGArriereD;PressionPiedGArriereG;PressionPiedGAvantD;PressionPiedGAvantG
+#AccX;AccY;ElongationD;ElongationG;GyroX;GyroY;PressionPiedDArriereD;PressionPiedDArriereG;PressionPiedDAvantD;PressionPiedDAvantG;PressionPiedGArriereD;PressionPiedGArriereG;PressionPiedGAvantD;PressionPiedGAvantG
 1495;1516;553;800;1791;1806;3036;1744;70;2149;3041;2386;1040;2835
 1494;1517;553;801;1791;1806;3036;1724;72;2144;3042;2381;1041;2838
 1494;1517;553;801;1789;1802;3036;1539;71;2145;3042;2380;1041;2835
