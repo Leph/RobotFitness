@@ -49,3 +49,4 @@ void SensorData::addSensorValue(const string& name, double value)
     _valueMap[name].push_back(value);
 }
 
+
