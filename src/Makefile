@@ -3,7 +3,7 @@
 CPP=g++
 CXXFLAGS=-g -Wall
 LDFLAGS=
-EXEC=test
+EXEC=Fitness
 SRC= $(wildcard *.cpp)
 HEADERS= $(wildcard *.hpp) $(wildcard *.h)
 OBJ= $(SRC:.cpp=.o)
