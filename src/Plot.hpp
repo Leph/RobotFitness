@@ -15,7 +15,7 @@ class Plot
             (const std::string& title, const std::vector<double>& data);
 
         /**
-         * Plot data
+         * Plot dataset
          */
         static void plot();
 
@@ -24,7 +24,7 @@ class Plot
         /**
          * dataset and titles container
          */
-        static std::vector< const std::vector<double>* > _dataset;
+        static std::vector< std::vector<double> > _dataset;
         static std::vector<std::string> _titles;
 };
 

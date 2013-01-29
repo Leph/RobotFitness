@@ -5,13 +5,14 @@
 #include <sstream>
 #include "Plot.hpp"
 
-std::vector< const std::vector<double>* > Plot::_dataset;
+std::vector< std::vector<double> > Plot::_dataset;
 std::vector<std::string> Plot::_titles;
 
-void Plot::add(const std::string& title, const std::vector<double>& data)
+void Plot::add
+    (const std::string& title, const std::vector<double>& data)
 {
     _titles.push_back(title);
-    _dataset.push_back(&data);
+    _dataset.push_back(data);
 }
 
 void Plot::plot()
@@ -33,16 +34,16 @@ void Plot::plot()
         close(fd[0]);
         //Dataset length check
         for (size_t i=1;i<_dataset.size();i++) {
-            if (_dataset[i]->size() != _dataset[0]->size()) {
+            if (_dataset[i].size() != _dataset[0].size()) {
                 throw std::string("Dataset have different length");
             }
         }
-        size_t length = _dataset[0]->size();
+        size_t length = _dataset[0].size();
         //Output data lines
         for (size_t j=0;j<_dataset.size();j++) {
             for (size_t i=0;i<length;i++) {
                 std::ostringstream oss;
-                oss << (*(_dataset[j]))[i];
+                oss << _dataset[j][i];
                 std::string line;
                 line += oss.str();
                 line += "\n";
