@@ -2,6 +2,7 @@
 #include <vector>
 #include "Fitness.hpp"
 #include "Plot.hpp"
+#include "FFT.hpp"
 
 std::vector< std::pair<size_t,size_t> > Fitness::findWalkPhases(SensorData& sensors)
 {
@@ -67,3 +68,22 @@ std::vector< std::pair<size_t,size_t> > Fitness::findWalkPhases(SensorData& sens
     return phases;
 }
 
+
+void Fitness::computeFitness(SensorData& sensors, std::vector< std::pair<size_t,size_t> >& phases){
+  size_t i,j;
+  size_t nbSensor = sensors.getNbSensor();
+  size_t nbPhases = phases.size();
+  
+  for(j=0;j<nbPhases;j++){
+    for(i=0;i<nbSensor;i++){
+      std::string sensorName = sensors.getSensor(i);
+      std::vector<double>& sensorValues = sensors.getSensorValues(sensorName); 
+      std::vector<double>::const_iterator phaseStart = sensorValues.begin() + phases[j].first;
+      std::vector<double>::const_iterator phaseEnd = sensorValues.begin() + phases[j].second;
+      std::vector<double> walkValues(phaseStart, phaseEnd);
+      std::vector<std::pair<double,double> > result = FFT(walkValues,SAMPLE_RATE,1);
+      //Plot::add("phase "+i+" :", );
+    }
+  }
+
+}

@@ -3,6 +3,8 @@
 
 #include "SensorData.hpp"
 
+#define SAMPLE_RATE 8192 
+
 class Fitness
 {
     public:
@@ -22,6 +24,11 @@ class Fitness
          */
         static std::vector< std::pair<size_t,size_t> > findWalkPhases
             (SensorData& sensors);
+
+  /**
+   * Compute FFT
+   **/ 
+  static void computeFitness(SensorData& sensors, std::vector< std::pair<size_t,size_t> >& phases);
 };
 
 #endif
