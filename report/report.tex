@@ -26,12 +26,25 @@ deux jambes composés d'un total de 20 servos moteurs.
 
 \section{Mise en place de l'environnement}
 
-La vingtaine de servos articulants le robots sont tous connecté en série sur un même 
+La vingtaine de servos articulants le robots sont tous connectés en série sur un même 
 bus. Le protocole utiliser pour communiqué au travers de ce bus série est défini par le
 constructeur des servos moteur \textit{Dynamixel}. Le bus série est ensuite relié à un mini pc
-embarqué sur le robot par USB.
+embarqué sur le robot par connexion USB. Le mini pc embarqué fait tourné un environnement linux
+(distribution debian) sur lequel est installé le \textit{Rhoban Server} assurant la communication
+bas niveau avec les servos moteurs ainsi que l'odonnancement des différents mouvement. Le mini pc
+a été configurer pour rejoindre un point d'accès WiFi. Il est ainsi possible de controller le robot
+à distance.
 
 \section{Stabilisation et premiers pas}
+
+La création des primitives motrices est réalisée à l'aide de l'Interface graphique de Rhoban.
+Elle permet à l'aide d'un système de blocs interconnectés possédant chacun sa propre fonction
+de contruire facilement le signal appliqué aux actionneurs du robots. Les mouvements ainsi généré
+sont ensuite transmis au serveurs embarqué sur le robot qui se charge de les exécuter.\\
+
+Une première étape est le système d'équilibrage du robot. 
+Les mouvements créés sont tous basés sur un signal sinudoïdale. Le gain et la phase
+
 \section{Détermination d'une fonction récompence}
 \section{Optimisation de la marche}
 \section{Conclusion}
