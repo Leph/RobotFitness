@@ -20,33 +20,61 @@
 
 \section{Introduction}
 
-L'objet de se projet est l'optimisation de la marche du robot de l'équipe 
+L'objet de ce projet est l'optimisation de la marche du robot de l'équipe 
 de recherche Rhoban : Sigmaban. Il s'agit d'un robot humanoïde possédant deux bras,
-deux jambes composés d'un total de 20 servos moteurs.
+deux jambes, et composé d'un total de 20 servomoteurs.
 
 \section{Mise en place de l'environnement}
 
-La vingtaine de servos articulants le robots sont tous connectés en série sur un même 
-bus. Le protocole utiliser pour communiqué au travers de ce bus série est défini par le
-constructeur des servos moteur \textit{Dynamixel}. Le bus série est ensuite relié à un mini pc
-embarqué sur le robot par connexion USB. Le mini pc embarqué fait tourné un environnement linux
+La vingtaine de servomoteurs articulant le robots sont tous connectés en série sur un même 
+bus. Le protocole utilisé pour communiquer au travers de ce bus série est défini par le
+constructeur des servomoteurs \textit{Dynamixel}. Le bus série est ensuite relié à un mini pc
+embarqué sur le robot par connexion USB. Le mini pc embarqué fait tourner un environnement linux
 (distribution debian) sur lequel est installé le \textit{Rhoban Server} assurant la communication
-bas niveau avec les servos moteurs ainsi que l'odonnancement des différents mouvement. Le mini pc
-a été configurer pour rejoindre un point d'accès WiFi. Il est ainsi possible de controller le robot
+bas niveau avec les servomoteurs ainsi que l'ordonnancement des différents mouvements. Le mini pc
+a été configuré pour rejoindre un point d'accès WiFi. Il est ainsi possible de contrôler le robot
 à distance.
 
 \section{Stabilisation et premiers pas}
 
-La création des primitives motrices est réalisée à l'aide de l'Interface graphique de Rhoban.
+La création des primitives motrices est réalisée à l'aide de l'interface graphique de Rhoban.
 Elle permet à l'aide d'un système de blocs interconnectés possédant chacun sa propre fonction
-de contruire facilement le signal appliqué aux actionneurs du robots. Les mouvements ainsi généré
-sont ensuite transmis au serveurs embarqué sur le robot qui se charge de les exécuter.\\
+de contruire facilement le signal appliqué aux actionneurs du robots. Les mouvements ainsi générés
+sont ensuite transmis au serveurs embarqués sur le robot qui se charge de les exécuter.\\
 
 Une première étape est le système d'équilibrage du robot. 
-Les mouvements créés sont tous basés sur un signal sinudoïdale. Le gain et la phase
+Les mouvements créés sont tous basés sur un signal sinudoïdal. Le gain et la phase de ces signaux sont pour l'instant créés à l'instinct, en testant différents paramètres afin que le robot ait un équilibre qui semble le plus correct possible. De plus, on essaye de simuler le mouvement de balancier d'une marche grâce à certains signaux, là aussi en testant différents paramètres, jusqu'à l'obtention d'un piétinement acceptable.
 
-\section{Détermination d'une fonction récompence}
+\section{Détermination d'une fonction récompense}
 \section{Optimisation de la marche}
+\subsection{Exploration locale}
+Grâce à la fonction de récompense précédemment présentée, on peut déterminer des paramètres pour lesquels le robot marche \"mieux\" que d'autres. Avec une liste de n listes de p paramètres avec chacune leur score associée, on peut donc sélectionner un certain nombre l de ces listes, les meilleures. A partir d'une des listes sélectionnées, il est possible d'explorer localement autour d'un point qu'elle définit dans un espace à p dimensions. On génère donc pour chacune des listes sélectionnées, un certain nombre de listes proches dans cet espace, c'est-à-dire dont les valeurs des paramètres sont proches de la valeur du paramètre de la liste originelle.\\
+On obtient donc une nouvelle liste de n2 listes de p paramètres, comprenant les l meilleures des n listes précédentes et certaines nouvelles listes proches des précédentes meilleures. On peut donc espérer que les l meilleures de cette nouvelle liste de n2 listes soient différentes de celles-ci, et donc nécéssairement meilleures. Il faut cependant calculer le score obtenu par chacune des listes, en fournissant les paramètres d'uneliste en entrée du robot, et analyser les différents résultats fournis par les capteur du robot lors de l'éxécution du mouvement. On va donc ainsi améliorer petit à petit les résulats obtenus par les listes de paramètres, de manière à trouver les maximums locaux de la fonction de récompense.\\
+
+\subsubsection{Exemple} 
+On part avec 5 listes de 3 paramètres entiers, chaque liste ayant un score entier associé:\\
+L1={0;12;45}
+L1Score=154;
+L2={3;1;5}
+L2Score=102;
+L3={40;67;12}
+L3Score=87;
+L4={73;24;7}
+L4Score=167;
+L5={23;17;64}
+L5Score=17;\\
+
+On sélectionne les 2 meilleures listes, L4 et L1, et on génère à partir de chacune d'elles deux listes nouvelles, en faisant en sorte que les paramètres soient proches à 10\% près. On obtient ainsi 6 listes de 3 paramètres :\\
+
+L1={73;24;7}
+L2={0;12;45}
+L2={67;22;7}
+L2={75;25;7}
+L2={0;13;42}
+L2={0;12;44}
+
+Pour calculer les scores associées à chacune des listes de paramètres, on doit passer ceux-ci au robot, et générer la valeur du score grâce aux différentes données fournies par les capteurs.
+
 \section{Conclusion}
 
 \end{document}
