@@ -55,6 +55,18 @@ du mouvement sur lesquels la méthode d'apprentissage devra agir. Le mouvement r
 toujours debout en déplaçant sont poids d'un pied sur l'autre.
 
 \section{Détermination d'une fonction récompense}
+Afin de mettre en place un apprentissage, il fallait que le robot puisse évaluer à chaque essai la qualité de sa marche. Ainsi, en cherchant à maximiser la qualité de sa marche à chaque essai, le robot va, petit à petit, se déplacer de façon plus efficace.\\
+Dans le cas présent, la fonction attribuant une note à la marche, ou fonction de récompense, prend en paramètre les relevés des différents capteurs de SigmaBan: 4 capteurs de pression sous chacun de ses pieds, deux accéléromètres mesurant l'inclinations du robot par rapport au plan de déplacement, un gyroscope à chaque hanche, mesurant l'inclinaison du bustepar rapport au bassin, et finalement deux gyroscopes en X et Y, pour mesurer les accélérations. Les positions des différents moteurs de sigmaban ne sont donc pas prises en compte pour noter la qualité de la marche.\\
+La fonction de récompense prend donc en entrée les relevés de ces capteurs tout au long d'une phase de marche, et donne en sortie une unique valeur, mesurant la qualité de cette phase de marche. Le problème qui se posait donc était de parvenir à rassembler ces mesures diverses et variées en une seule valeur. Nous sommes parties de l'hypothèse qu'une bonne mesure de la marche est sa periodicité, une bonne marche se répétant à l'infini, et étant donc parfaitement periodique.\\
+Notre fonction de récompense fonctionne en trois temps:
+\begin{itemize}
+\item En premier lieu, elle utilise l'ensemble des relevés pour déterminer les phases de marche du robot. En effet les enregistrement effectués possèdent des periodes de marche entrecoupées de periodes ou le robot est au repos. Nous normalisons l'ensemble des valeurs fournies par les capteurs, puis nous calculons la somme de ces valeurs à chaque instant. Les periodes de marche ressortent alors clairement, car les valeurs obtenues par les différents capteurs sont pour la plupart plus importantes en déplacement. De plus sommer ainsi les différentes valeurs des capteurs permet de préciser les periodes, en éliminant les faux positifs quand l'un des capteurs est defectueux (dans notre cas l'un des capteurs de pression des pieds).
+\item Dans un second temps, nous effectuons pour chaque capteurs la transformée de Fourier rapide des relevés, ce qui nous permet d'obtenir l'harmonique principale (le mouvement imprimés aux moteurs étant effectivement sinusoidale). En calculant la phase de cette harmonique, nous pouvons ainsi distinguer les periodes du mouvement pour chaque capteur.
+\item Ces periodes nous permettent de positionner chaque valeur échantillonée dans le mouvement (savoir où se trouve se point dans la periode du mouvement en cours). En calculant la variance entre points correspondants dans différents periodes (ces points sont situés aux mêmes endroits dans différentes périodes, et devrait donc avoir la même valeur si le mouvement était parfaitement periodique), nous obtenons une mesure de la periodicité du mouvement. 
+\end{itemize}
+En sommant ces variances pour les différents capteurs,
+nous obtenons donc une valeur qui mesure la periodicité globale d'un mouvement. Plus cette valeur est petite, plus le mouvement est periodique, et donc plus le robot doit privilégier les paramètres correspondants aux mesures pour optimiser sa marche. 
+
 \section{Optimisation de la marche}
 \section{Conclusion}
 
