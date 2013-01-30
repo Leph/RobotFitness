@@ -51,3 +51,25 @@ void CSVParser::parseFile(const char* filename, ParticuleData& particules)
     file.close();
 }
 
+void CSVParser::writeFile(const char* filename, ParticuleData& data)
+{
+    ofstream file;
+    file.open(filename);
+    if (!file.is_open()) {
+        throw string("Unable to open file: ")+string(filename);
+    }
+
+    for (size_t i=0;i<data.getNbParticule();i++) {
+        vector<double>& values = data.getParticuleValues(i);
+        for (size_t j=0;j<values.size();j++) {
+            if (j > 0) {
+                file << ";";
+            }
+            file << values[j];
+        }
+        file << endl;
+    }
+
+    file.close();
+}
+
