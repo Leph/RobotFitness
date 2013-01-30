@@ -54,21 +54,41 @@ sont éventuellement modifiés puis envoyés aux différentes articulations. Ces
 toujours debout en déplaçant sont poids d'un pied sur l'autre.
 
 \section{Détermination d'une fonction récompense}
-\includegraphics[scale=0.4]{sensors.png}
+
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{sensors.png}
+    \caption{Valeur brute de trois capteurs au cours de l'enregistrement}
+\end{figure}
+
 Afin de mettre en place un apprentissage, il fallait que le robot puisse évaluer à chaque essai la qualité de sa marche. Ainsi, en cherchant à maximiser cette qualité, le robot va, petit à petit, se déplacer de façon plus efficace.\\
 Dans le cas présent, la fonction attribuant une note à la marche, ou fonction de récompense, prend en paramètre les relevés des différents capteurs de SigmaBan: 4 capteurs de pression sous chacun de ses pieds, deux accéléromètres mesurant l'inclinaison du robot par rapport au plan de déplacement, un capteur d'élongation à chaque hanche, mesurant l'inclinaison du buste par rapport au bassin, et finalement deux gyroscopes en X et Y, pour mesurer les accélérations. Les positions des différents moteurs de sigmaban ne sont donc pas prises en compte pour noter la qualité de la marche.\\
 La fonction de récompense prend en entrée les relevés de ces capteurs tout au long d'une phase de marche, et donne en sortie une unique valeur, mesurant la qualité de cette phase de marche. Le problème qui se posait donc était de parvenir à rassembler ces mesures diverses et variées en une seule valeur. Nous sommes partis de l'hypothèse qu'une bonne mesure de la marche est sa périodicité, une bonne marche se répétant à l'infini, et étant donc parfaitement périodique.\\
 Notre fonction de récompense fonctionne en trois temps:
 \begin{itemize}
 \item En premier lieu, elle utilise l'ensemble des relevés pour déterminer les phases de marche du robot. En effet les enregistrements effectués possèdent des périodes de marche entrecoupées de périodes où le robot est au repos. Nous normalisons l'ensemble des valeurs fournies par les capteurs, puis nous calculons la somme de ces valeurs à chaque instant. Les périodes de marche ressortent alors clairement, car les valeurs obtenues par les différents capteurs sont pour la plupart plus importantes lors du déplacement. De plus sommer ainsi les différentes valeurs des capteurs permet de préciser les périodes, en éliminant les faux positifs quand l'un des capteurs est defectueux (dans notre cas l'un des capteurs de pression des pieds).
-\includegraphics[scale=0.4]{walks.png}
+
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{walks.png}
+    \caption{Norme (max amplitude) de tous les capteurs sommés. Détection des phases de marche}
+\end{figure}
+
 \item Dans un second temps, nous effectuons pour chaque capteur la transformée de Fourier des relevés, ce qui nous permet d'obtenir l'harmonique principale (le mouvement imprimés aux moteurs étant effectivement sinusoidal). En calculant la phase de cette harmonique, nous pouvons ainsi distinguer les périodes du mouvement pour chaque capteur.
 \item Ces périodes nous permettent de positionner chaque valeur échantillonnée dans le mouvement (savoir où se trouve se point dans la période du mouvement en cours). En calculant la variance entre points correspondants de différents périodes (ces points sont situés aux mêmes endroits dans différentes périodes, et devraient donc avoir la même valeur si le mouvement était parfaitement périodique), nous obtenons une mesure de la périodicité du mouvement. 
-\includegraphics[scale=0.4]{phase_freq.png}
+
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{phase_freq.png}
+    \caption{Phase et fréquence (fondamentale) d'un capteur au cours d'une des marches}
+\end{figure}
+
 \end{itemize}
 En sommant ces variances pour les différents capteurs,
 nous obtenons donc une valeur qui mesure la périodicité globale d'un mouvement. Plus cette valeur est petite, plus le mouvement est périodique, et donc plus le robot doit privilégier les paramètres correspondants aux mesures pour optimiser sa marche. 
-\includegraphics[scale=0.4]{fitnesses.png}
+
+\begin{figure}[h]
+    \includegraphics[scale=0.6]{fitnesses.png}
+    \caption{Valeur de la fonction de récompense pour les quatres marches}
+\end{figure}
+
 \section{Optimisation de la marche}
 \subsection{Exploration locale}
 Grâce à la fonction de récompense précédemment présentée, on peut déterminer des paramètres pour lesquels le robot marche "mieux" que d'autres. Avec un ensemble de n listes de p paramètres, chacune associée à un score, on peut donc sélectionner un certain nombre l de ces listes, celles avec le  meilleur score. A partir d'une des listes sélectionnées, il est possible d'explorer localement autour du point qu'elle définit dans un espace à p dimensions. On génère donc pour chacune des listes sélectionnées, un certain nombre de listes proches dans cet espace, c'est-à-dire dont les valeurs des paramètres sont proches des valeurs des paramètres correspondant dans la liste originelle.\\
@@ -101,8 +121,14 @@ Nous avons ainsi pu installer les outils fournis par Rhoban sur Sigmaban, pour c
 Nous remercions Grégoire Passault pour avoir fortement contribué à l'obtention des résultats de marche de Sigmaban.
 
 \section{Annexes}
-\includegraphics[scale=0.4]{all_sensor_phases.png}
-\includegraphics[scale=0.4]{all_sensor_freq.png}
+\begin{figure}[h]
+    \includegraphics[scale=0.5]{all_sensor_phases.png}
+    \caption{La phase de tous les capteurs au cours d'une des marches}
+\end{figure}
+\begin{figure}[h]
+    \includegraphics[scale=0.5]{all_sensor_freq.png}
+    \caption{La fréquence de tous les capteurs au cours d'une des marches}
+\end{figure}
 
 \end{document}
 
