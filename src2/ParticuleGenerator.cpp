@@ -1,6 +1,7 @@
 #include <math.h>
 #include "ParticuleGenerator.hpp"
 #include <time.h>
+
 ParticuleData& ParticuleGenerator::generate(ParticuleData& inputParticules){
   srand(time(NULL));
   ParticuleData* outputParticules =new ParticuleData();
@@ -11,7 +12,13 @@ ParticuleData& ParticuleGenerator::generate(ParticuleData& inputParticules){
       outputParticules->addParticule(-1);
       for(size_t j=0;j<nbValues;j++){
 	double inputValue =inputParticules.getParticuleValue(i,j);
-	outputParticules->addParticuleValue(i*generationRatio+k,inputValue+valueRandRatio*inputValue*(2*rand()-1));
+	// Le meilleur est preservé intact
+	if(i==0 && k==0){
+	  outputParticules->addParticuleValue(i*generationRatio+k,inputValue);
+	}
+	else {
+	  outputParticules->addParticuleValue(i*generationRatio+k,inputValue+valueRandRatio*inputValue*(2*((double)rand())/(double)(RAND_MAX)-1));
+	}
       }
     }
   }
