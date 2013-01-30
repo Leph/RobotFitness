@@ -10,7 +10,7 @@
 \usepackage{graphicx}
 
 \title{Projet Robotique Autonome\\
-\textit{Robot humanoïde : optimisation de la marche}}
+\textit{Robot Humanoïde Sigmaban : optimisation de la marche}}
 \author{Maxime Carrere, Quentin Maouhoub, Quentin Rouxel}
 \date{31/01/2013}
 
@@ -35,17 +35,36 @@ bas niveau avec les servomoteurs ainsi que l'ordonnancement des différents mouv
 a été configuré pour rejoindre un point d'accès WiFi. Il est ainsi possible de contrôler le robot
 à distance.
 
-\section{Stabilisation et premiers pas}
+\section{Stabilisation et premiers mouvements}
 
 La création des primitives motrices est réalisée à l'aide de l'interface graphique de Rhoban.
 Elle permet à l'aide d'un système de blocs interconnectés possédant chacun sa propre fonction
-de contruire facilement le signal appliqué aux actionneurs du robots. Les mouvements ainsi générés
-sont ensuite transmis au serveurs embarqués sur le robot qui se charge de les exécuter.\\
+de construire facilement le signal à appliquer aux actionneurs du robot. Les mouvements ainsi générés
+sont ensuite transmis au serveur embarqué sur le robot qui se charge de les exécuter.\\
 
-Une première étape est le système d'équilibrage du robot. 
-Les mouvements créés sont tous basés sur un signal sinudoïdal. Le gain et la phase de ces signaux sont pour l'instant créés à l'instinct, en testant différents paramètres afin que le robot ait un équilibre qui semble le plus correct possible. De plus, on essaye de simuler le mouvement de balancier d'une marche grâce à certains signaux, là aussi en testant différents paramètres, jusqu'à l'obtention d'un piétinement acceptable.
+Une première étape est le système d'équilibrage du robot. Les articulations des pieds, des genoux 
+et des hanches sont utilisées pour contre balancer les chocs et déséquilibres permanents
+du robot. Ce dernier dispose de capteurs accéléromètres et gyroscopes selon des axes frontale et sagittale.
+A partir de ces capteurs, des boucles de régulation proportionnels et proportionnels intégrales appliquées
+aux articulations permettent de maintenir debout le robot.\\
+
+Les mouvements sont ensuite créés, basés sur un signal sinusoïdale. Le gain et la phase du signal périodique 
+sont alors modifiés puis envoyés aux différentes articulations. Ces valeurs constituent l'ensemble des paramètres
+du mouvement sur lesquels la méthode d'apprentissage devra agir. Le mouvement réalisé fait piétiner le robot 
+toujours debout en déplaçant sont poids d'un pied sur l'autre.
 
 \section{Détermination d'une fonction récompense}
+Afin de mettre en place un apprentissage, il fallait que le robot puisse évaluer à chaque essai la qualité de sa marche. Ainsi, en cherchant à maximiser la qualité de sa marche à chaque essai, le robot va, petit à petit, se déplacer de façon plus efficace.\\
+Dans le cas présent, la fonction attribuant une note à la marche, ou fonction de récompense, prend en paramètre les relevés des différents capteurs de SigmaBan: 4 capteurs de pression sous chacun de ses pieds, deux accéléromètres mesurant l'inclinations du robot par rapport au plan de déplacement, un gyroscope à chaque hanche, mesurant l'inclinaison du bustepar rapport au bassin, et finalement deux gyroscopes en X et Y, pour mesurer les accélérations. Les positions des différents moteurs de sigmaban ne sont donc pas prises en compte pour noter la qualité de la marche.\\
+La fonction de récompense prend donc en entrée les relevés de ces capteurs tout au long d'une phase de marche, et donne en sortie une unique valeur, mesurant la qualité de cette phase de marche. Le problème qui se posait donc était de parvenir à rassembler ces mesures diverses et variées en une seule valeur. Nous sommes parties de l'hypothèse qu'une bonne mesure de la marche est sa periodicité, une bonne marche se répétant à l'infini, et étant donc parfaitement periodique.\\
+Notre fonction de récompense fonctionne en trois temps:
+\begin{itemize}
+\item En premier lieu, elle utilise l'ensemble des relevés pour déterminer les phases de marche du robot. En effet les enregistrement effectués possèdent des periodes de marche entrecoupées de periodes ou le robot est au repos. Nous normalisons l'ensemble des valeurs fournies par les capteurs, puis nous calculons la somme de ces valeurs à chaque instant. Les periodes de marche ressortent alors clairement, car les valeurs obtenues par les différents capteurs sont pour la plupart plus importantes en déplacement. De plus sommer ainsi les différentes valeurs des capteurs permet de préciser les periodes, en éliminant les faux positifs quand l'un des capteurs est defectueux (dans notre cas l'un des capteurs de pression des pieds).
+\item Dans un second temps, nous effectuons pour chaque capteurs la transformée de Fourier rapide des relevés, ce qui nous permet d'obtenir l'harmonique principale (le mouvement imprimés aux moteurs étant effectivement sinusoidale). En calculant la phase de cette harmonique, nous pouvons ainsi distinguer les periodes du mouvement pour chaque capteur.
+\item Ces periodes nous permettent de positionner chaque valeur échantillonée dans le mouvement (savoir où se trouve se point dans la periode du mouvement en cours). En calculant la variance entre points correspondants dans différents periodes (ces points sont situés aux mêmes endroits dans différentes périodes, et devrait donc avoir la même valeur si le mouvement était parfaitement periodique), nous obtenons une mesure de la periodicité du mouvement. 
+\end{itemize}
+En sommant ces variances pour les différents capteurs,
+nous obtenons donc une valeur qui mesure la periodicité globale d'un mouvement. Plus cette valeur est petite, plus le mouvement est periodique, et donc plus le robot doit privilégier les paramètres correspondants aux mesures pour optimiser sa marche. 
 \section{Optimisation de la marche}
 \subsection{Exploration locale}
 Grâce à la fonction de récompense précédemment présentée, on peut déterminer des paramètres pour lesquels le robot marche \"mieux\" que d'autres. Avec une liste de n listes de p paramètres avec chacune leur score associée, on peut donc sélectionner un certain nombre l de ces listes, les meilleures. A partir d'une des listes sélectionnées, il est possible d'explorer localement autour d'un point qu'elle définit dans un espace à p dimensions. On génère donc pour chacune des listes sélectionnées, un certain nombre de listes proches dans cet espace, c'est-à-dire dont les valeurs des paramètres sont proches de la valeur du paramètre de la liste originelle.\\
@@ -76,6 +95,9 @@ L2={0;12;44}
 Pour calculer les scores associées à chacune des listes de paramètres, on doit passer ceux-ci au robot, et générer la valeur du score grâce aux différentes données fournies par les capteurs.
 
 \section{Conclusion}
+
+\section{Remerciements}
+Nous remercions Grégoire Passault pour avoir fortement contribué à la grande majorité de ce projet.
 
 \end{document}
 
