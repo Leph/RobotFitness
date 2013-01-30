@@ -18,6 +18,7 @@ int main()
 	  }
 	  std::cout<<std::endl;
 	}
+	CSVParser::writeFile("particulesResultTest.csv",particules);
     } catch (std::string error) {
         std::cout << "ERROR: " << error << std::endl;
         return EXIT_FAILURE;
