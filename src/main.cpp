@@ -18,7 +18,9 @@ int main()
             std::cout << "start " << phases[i].first 
            << " stop " << phases[i].second << std::endl;
         }
-       Fitness::computeFitness(sensors, phases);
+       std::vector<double> fitnesses =Fitness::computeFitness(sensors, phases);
+       Plot::add("Fitnesses for each walk phase",fitnesses);
+       Plot::plot();
     } catch (std::string error) {
         std::cout << "ERROR: " << error << std::endl;
         return EXIT_FAILURE;

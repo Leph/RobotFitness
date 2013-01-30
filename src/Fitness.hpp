@@ -20,12 +20,12 @@ class Fitness
         /**
          * FTT sample rate for computeFitness
          */
-        static const int FTT_SAMPLE_RATE = 8192;
+        static const int FTT_SAMPLE_RATE = 64;
 
         /**
          * FTT window length for computeFitness
          */
-        static const size_t FFT_WINDOW_LENGTH = 200;
+        static const size_t FFT_WINDOW_LENGTH = 100;
 
         /**
          * Returns pair (begin, end) of walking phases
@@ -34,10 +34,14 @@ class Fitness
             (SensorData& sensors);
 
         /**
-         * Compute FFT
+         * Compute fitness by using FFT
          **/ 
-        static void computeFitness(SensorData& sensors, 
+  static std::vector<double> computeFitness(SensorData& sensors, 
             const std::vector< std::pair<size_t,size_t> >& phases);
+  /**
+   * find the fundamental frequency of a FFT result
+   **/
+  static size_t findFundamental(std::vector<std::pair<double,double> > result);
 };
 
 #endif
