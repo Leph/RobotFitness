@@ -43,7 +43,14 @@ public:
      */
     void addParticuleValue(size_t indexParticle, size_t value);
 
+  /**
+   * Sort values and particuleFitness by ascending fitness
+   */
+  void quicksortValuesByFitness(); 
+
+
 private: 
+
 
   /**
    * Particule fitnesse container
@@ -55,7 +62,10 @@ private:
      */
   std::vector< std::vector<double> > _values;
 
-  
+  size_t partition(size_t p, size_t r);
+
+  void quicksort(size_t p, size_t r);
+
 };
  
 #endif
