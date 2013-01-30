@@ -76,103 +76,94 @@ std::vector<double> Fitness::computeFitness(SensorData& sensors,
 {
     size_t nbSensor = sensors.getNbSensor();
     size_t nbPhases = phases.size();
-    double fitness=0;
     std::vector<double> fitnessVector;
-    for(size_t j=0;j<nbPhases;j++) {
-        for(size_t i=0;i<nbSensor;i++) {
+    //Evaluate fitness for each walking phases
+    for (size_t j=0;j<nbPhases;j++) {
+        double fitness = 0;
+        //For each sensors
+        for (size_t i=0;i<nbSensor;i++) {
+            //Contains interpolated phase, amplitude and fundamental frequency
             std::vector<double> phaseSignal;
-	    std::vector<double> amplitudeSignal;
-	    std::vector<double> frequencySignal;
+	         std::vector<double> amplitudeSignal;
+	         std::vector<double> frequencySignal;
+            //Usefull variables
             std::string sensorName = sensors.getSensor(i);
             std::vector<double>& sensorValues = sensors.getSensorValues(sensorName);
-	    double realPart,imPart;
-            //Compute for each window
             int indexStart = phases[j].first;
             int indexEnd = phases[j].second;
+            //Compute on sliding window
             for (size_t k=indexStart;k<indexEnd-FFT_WINDOW_LENGTH;k++) {
-                //Compute FFT
-                std::vector< std::pair<double,double> > result = windowedFFT(
+                //Compute FFT on the window
+                std::vector< std::pair<double,double> > fftCoefs = windowedFFT(
                     sensorValues, k, k+FFT_WINDOW_LENGTH, FTT_SAMPLE_RATE, 1);
-		
-		
-                size_t fundamental = findFundamental(result);
-		
-                //Compute freq and phase
-                phaseSignal.push_back(atan2(result[fundamental].second, result[fundamental].first));
-		frequencySignal.push_back((double)fundamental);
-		realPart = result[fundamental].first;
-		imPart = result[fundamental].second;
-		amplitudeSignal.push_back(sqrt(realPart*realPart+imPart*imPart));
-		
-		
+	             //Find fundamental frequency of the window signal
+                size_t fundamental = findFundamental(fftCoefs);
+                //Compute freq and phase for the fundamental frequency
+		          double realPart = fftCoefs[fundamental].first;
+		          double imPart = fftCoefs[fundamental].second;
+                phaseSignal.push_back(atan2(imPart, realPart));
+		          frequencySignal.push_back(fundamental);
+		          amplitudeSignal.push_back(sqrt(realPart*realPart+imPart*imPart));
             }
-	    
-	    double pas =0.10;
-	    double l;
-	    size_t m,phaseSize;
-	    double precision = pas/2;
-	    for(l=M_PI;l>-M_PI;l-=pas){
-	      std::vector<size_t> valueCompared;
-	      phaseSize=phaseSignal.size();
-	      for(m=0;m<phaseSize;m++){
-		if(phaseSignal[m]+precision>l && phaseSignal[m]-precision<l){
-		  valueCompared.push_back(m+indexStart);
-		}
-	      }
-	      double mean=0;
-	      size_t valueComparedSize =valueCompared.size();
-	      for(m=0;m<valueComparedSize;m++){
-		// Fitness : adding variance
-		mean += sensorValues[valueCompared[m]];
-	      }
-	      mean = mean/valueComparedSize;
-	      //std::cout<<"mean is "<<mean<<std::endl;
-	      double variance=0;
-	      if(valueComparedSize!=0){
-		for(m=0;m<valueComparedSize;m++){
-		  variance += abs(mean-sensorValues[valueCompared[m]]);
-		}
-		variance = variance/valueComparedSize;
-		std::cout<<"variance is "<<variance<<std::endl;
-		fitness += variance;
-	      }
-	    }
-		  /*
-            for(size_t k=0;k<result.size();k++) {
-                double realPart = result[k].first;
-                double imPart = result[k].second;
-                plot1.push_back(sqrt(realPart*realPart+imPart*imPart));
-                plot2.push_back(atan2(imPart,realPart));
+	         //Now, evaluates fitness on the walking phase
+            //For each phase value (movement step)
+            for (double l=M_PI;l>=-M_PI;l-=FITNESS_PHASE_STEP) {
+                //Find all sensors value at same movement step
+                std::vector<size_t> valueCompared;
+                for (size_t m=0;m<phaseSignal.size();m++) {
+                    if(
+                        phaseSignal[m]+FITNESS_PHASE_THRESHOLD > l && 
+                        phaseSignal[m]-FITNESS_PHASE_THRESHOLD < l
+                    ){
+                        valueCompared.push_back(indexStart+m);
+                    }
+                }
+                if (valueCompared.size() == 0) {
+                    continue;
+                }
+                //Then, compute values mean
+                double mean = 0;
+                for (size_t m=0;m<valueCompared.size();m++) {
+                    mean += sensorValues[valueCompared[m]];
+                }
+                mean = mean/valueCompared.size();
+                //Compute values variance 
+                double variance = 0;
+                for(size_t m=0;m<valueCompared.size();m++) {
+                    variance += abs(mean - sensorValues[valueCompared[m]]);
+                }
+                variance = variance/valueCompared.size();
+                //Add the error to fitness
+                fitness += variance;
             }
-	    */
-            if(i==1 && j == 2) {
+            if(i==1 && j==3) {
                 Plot::add("phase", phaseSignal);
-		Plot::add("frequency",frequencySignal);
-		//Plot::add("amplitude",amplitudeSignal);
-	    }
+		          Plot::add("frequency", frequencySignal);
+                Plot::plot();
+	         }
         }
-	fitnessVector.push_back(fitness);
-	fitness=0;
+	     fitnessVector.push_back(fitness);
     }
-    Plot::plot();
+
     return fitnessVector;
 }
 
-size_t Fitness::findFundamental(std::vector<std::pair<double,double> > result){
-  size_t i;
-  double realPart = result[0].first;
-  double imPart = result[0].second;
-  double maxAmpl=sqrt(realPart*realPart+imPart*imPart);
-  size_t indexMax =0;
-  size_t resultSize = result.size();
-  for(i=0;i<resultSize;i++){
-    realPart = result[i].first;
-    imPart = result[i].second;
-    double tempAmpl=sqrt(realPart*realPart+imPart*imPart);
-    if(tempAmpl>maxAmpl){
-      indexMax=i;
-      maxAmpl=tempAmpl;
+size_t Fitness::findFundamental
+    (const std::vector< std::pair<double,double> >& fftCoefs)
+{
+    double realPart = fftCoefs[0].first;
+    double imPart = fftCoefs[0].second;
+    double maxAmpl = sqrt(realPart*realPart+imPart*imPart);
+    size_t indexMax = 0;
+    for(size_t i=0;i<fftCoefs.size();i++) {
+        realPart = fftCoefs[i].first;
+        imPart = fftCoefs[i].second;
+        double tmpAmpl = sqrt(realPart*realPart+imPart*imPart);
+        if(tmpAmpl > maxAmpl){
+            indexMax = i;
+            maxAmpl = tmpAmpl;
+        }
     }
-  }
-  return indexMax;
+    return indexMax;
 }
+

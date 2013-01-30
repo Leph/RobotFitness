@@ -28,6 +28,13 @@ class Fitness
         static const size_t FFT_WINDOW_LENGTH = 100;
 
         /**
+         * Step and threshold for phase association
+         * in computing fitness
+         */
+        static const double FITNESS_PHASE_STEP = 0.1;
+        static const double FITNESS_PHASE_THRESHOLD = 0.05;
+
+        /**
          * Returns pair (begin, end) of walking phases
          */
         static std::vector< std::pair<size_t,size_t> > findWalkPhases
@@ -35,13 +42,19 @@ class Fitness
 
         /**
          * Compute fitness by using FFT
+         * Returns evaluated fitness for each walking phases
          **/ 
-  static std::vector<double> computeFitness(SensorData& sensors, 
+        static std::vector<double> computeFitness(SensorData& sensors, 
             const std::vector< std::pair<size_t,size_t> >& phases);
-  /**
-   * find the fundamental frequency of a FFT result
-   **/
-  static size_t findFundamental(std::vector<std::pair<double,double> > result);
+
+    private:
+
+        /**
+         * Find the fundamental frequency of a FFT result
+         * Retuns the frequency maximizing sinus amplitude
+         **/
+        static size_t findFundamental
+            (const std::vector<std::pair<double,double> >& fftCoefs);
 };
 
 #endif
