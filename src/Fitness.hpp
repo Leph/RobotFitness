@@ -3,7 +3,7 @@
 
 #include "SensorData.hpp"
 
-#define SAMPLE_RATE 8192 
+#define SAMPLE_RATE 64 
 
 class Fitness
 {
