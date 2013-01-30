@@ -10,7 +10,7 @@
 \usepackage{graphicx}
 
 \title{Projet Robotique Autonome\\
-\textit{Robot humanoïde : optimisation de la marche}}
+\textit{Robot Humanoïde Sigmaban : optimisation de la marche}}
 \author{Maxime Carrere, Quentin Maouhoub, Quentin Rouxel}
 \date{31/01/2013}
 
@@ -20,34 +20,46 @@
 
 \section{Introduction}
 
-L'objet de se projet est l'optimisation de la marche du robot de l'équipe 
-de recherche Rhoban : Sigmaban. Il s'agit d'un robot humanoïde possédant deux bras,
-deux jambes composés d'un total de 20 servos moteurs.
+L'objet de ce projet est l'optimisation de la marche du robot Sigmaban de l'équipe 
+de recherche Rhoban. Il s'agit d'un robot humanoïde possédant deux bras,
+deux jambes composés d'un total de 20 servos moteurs. Il embarque également 
+plusieurs capteurs accéléromètres, gyroscopes et capteurs de pression.
 
 \section{Mise en place de l'environnement}
 
-La vingtaine de servos articulants le robots sont tous connectés en série sur un même 
-bus. Le protocole utiliser pour communiqué au travers de ce bus série est défini par le
-constructeur des servos moteur \textit{Dynamixel}. Le bus série est ensuite relié à un mini pc
-embarqué sur le robot par connexion USB. Le mini pc embarqué fait tourné un environnement linux
-(distribution debian) sur lequel est installé le \textit{Rhoban Server} assurant la communication
-bas niveau avec les servos moteurs ainsi que l'odonnancement des différents mouvement. Le mini pc
-a été configurer pour rejoindre un point d'accès WiFi. Il est ainsi possible de controller le robot
+La vingtaine de servos articulant le robots sont tous connectés en série sur un même 
+bus. Le protocole utilisé pour communiquer au travers de ce bus série est défini par le
+constructeur des servos moteur \textit{Dynamixel}. Le bus série est lui même relié à un mini pc
+embarqué sur le robot par connexion USB. Le mini pc embarqué fait tourner un environnement Linux
+(distribution Debian) sur lequel est installé le \textit{Rhoban Server} assurant la communication
+bas niveau avec les servos moteurs ainsi que l'ordonnancement des différents mouvements. Le mini pc
+a été configuré pour rejoindre un point d'accès WiFi. Il est ainsi possible de contrôler le robot
 à distance.
 
-\section{Stabilisation et premiers pas}
+\section{Stabilisation et premiers mouvements}
 
-La création des primitives motrices est réalisée à l'aide de l'Interface graphique de Rhoban.
+La création des primitives motrices est réalisée à l'aide de l'interface graphique de Rhoban.
 Elle permet à l'aide d'un système de blocs interconnectés possédant chacun sa propre fonction
-de contruire facilement le signal appliqué aux actionneurs du robots. Les mouvements ainsi généré
-sont ensuite transmis au serveurs embarqué sur le robot qui se charge de les exécuter.\\
+de construire facilement le signal à appliquer aux actionneurs du robot. Les mouvements ainsi générés
+sont ensuite transmis au serveur embarqué sur le robot qui se charge de les exécuter.\\
 
-Une première étape est le système d'équilibrage du robot. 
-Les mouvements créés sont tous basés sur un signal sinudoïdale. Le gain et la phase
+Une première étape est le système d'équilibrage du robot. Les articulations des pieds, des genoux 
+et des hanches sont utilisées pour contre balancer les chocs et déséquilibres permanents
+du robot. Ce dernier dispose de capteurs accéléromètres et gyroscopes selon des axes frontale et sagittale.
+A partir de ces capteurs, des boucles de régulation proportionnels et proportionnels intégrales appliquées
+aux articulations permettent de maintenir debout le robot.\\
+
+Les mouvements sont ensuite créés, basés sur un signal sinusoïdale. Le gain et la phase du signal périodique 
+sont alors modifiés puis envoyés aux différentes articulations. Ces valeurs constituent l'ensemble des paramètres
+du mouvement sur lesquels la méthode d'apprentissage devra agir. Le mouvement réalisé fait piétiner le robot 
+toujours debout en déplaçant sont poids d'un pied sur l'autre.
 
 \section{Détermination d'une fonction récompense}
 \section{Optimisation de la marche}
 \section{Conclusion}
+
+\section{Remerciements}
+Nous remercions Grégoire Passault pour avoir fortement contribué à la grande majorité de ce projet.
 
 \end{document}
 
