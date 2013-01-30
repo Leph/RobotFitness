@@ -4,6 +4,7 @@
 #include <string>
 #include "CSVParser.hpp"
 #include "ParticuleData.hpp"
+#include "ParticuleGenerator.hpp"
 
 int main()
 {
@@ -11,13 +12,9 @@ int main()
         ParticuleData particules = ParticuleData();
         std::cout << "loading..." << std::endl;
         CSVParser::parseFile("particulesDataTest.csv", particules);
-        for(unsigned int i=0;i<particules.getNbParticule();i++){
-	  std::cout<<"Particule "<<i<<" of fitness "<<particules.getParticuleFitness(i)<<std::endl;
-	  for(unsigned int j=0;j<particules.getParticuleNbValues(i);j++){
-	    std::cout<<particules.getParticuleValue(i,j)<<" ";
-	  }
-	  std::cout<<std::endl;
-	}
+        particules.quicksortValuesByFitness();
+	ParticuleData& resultParticules =ParticuleGenerator::generate(particules);
+	CSVParser::writeFile("particulesResult.csv",resultParticules);
     } catch (std::string error) {
         std::cout << "ERROR: " << error << std::endl;
         return EXIT_FAILURE;
